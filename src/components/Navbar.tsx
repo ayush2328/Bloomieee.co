@@ -7,6 +7,14 @@ import { Search, ShoppingBag, Heart, Menu, X, Sparkles } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 
+const NAV_LINKS = [
+  { href: '/shop', label: 'Shop All' },
+  { href: '/shop?category=Tulip+Bouquets', label: 'Tulips' },
+  { href: '/shop?category=Rose+Bouquets', label: 'Roses' },
+  { href: '/shop?category=Lily+Bouquets', label: 'Lilies' },
+  { href: '/about', label: 'Our Story' },
+];
+
 export default function Navbar() {
   const { openCart, itemCount } = useCart();
   const { wishlistCount } = useWishlist();
@@ -15,13 +23,11 @@ export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [announcementText, setAnnouncementText] = useState(
-    'Little blooms, made with love ♡ Free shipping across India on orders above ₹999'
+    'Free shipping across India on orders above ₹999 ♡'
   );
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -46,168 +52,128 @@ export default function Navbar() {
 
   return (
     <>
-      {/* 1. Slim Announcement Bar */}
-      <div className="bg-sage text-ivory text-xs sm:text-sm py-2 px-4 text-center tracking-wide font-medium flex items-center justify-center gap-2 transition-all">
-        <Sparkles className="w-3.5 h-3.5 text-blush animate-pulse shrink-0" />
-        <span>{announcementText}</span>
-        <Sparkles className="w-3.5 h-3.5 text-blush animate-pulse shrink-0" />
+      {/* Announcement Bar */}
+      <div className="bg-sage text-ivory text-[11px] tracking-widest uppercase py-2 px-4 text-center font-medium">
+        {announcementText}
       </div>
 
-      {/* 2. Main Navigation Header */}
+      {/* Main Header */}
       <header
         className={`sticky top-0 z-40 transition-all duration-300 ${
           isScrolled
-            ? 'glass-panel shadow-sm py-3.5 border-b border-border-warm'
-            : 'bg-ivory/95 py-5 border-b border-border-warm/60'
+            ? 'bg-ivory/95 backdrop-blur-md shadow-[0_1px_12px_rgba(0,0,0,0.06)] border-b border-border-warm/80'
+            : 'bg-ivory border-b border-border-warm/50'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          {/* Mobile Menu Button */}
-          <div className="flex items-center gap-3 lg:hidden">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-1.5 text-main hover:text-sage transition-colors"
-              aria-label="Toggle navigation menu"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="p-1.5 text-main hover:text-sage transition-colors"
-              aria-label="Search flowers"
-            >
-              <Search className="w-5 h-5" />
-            </button>
-          </div>
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 h-16 flex items-center justify-between gap-6">
 
-          {/* Brand Logo & Title */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-sage/30 shadow-xs group-hover:scale-105 transition-transform duration-300 bg-cream">
+          {/* LEFT — Logo */}
+          <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+            <div className="relative w-9 h-9 rounded-full overflow-hidden border border-sage/25 shadow-xs group-hover:scale-105 transition-transform duration-300">
               <Image
                 src="/images/brand/bloomieee-logo.png"
-                alt="Bloomieee.co Logo"
+                alt="Bloomieee.co"
                 fill
                 className="object-cover"
                 priority
               />
             </div>
-            <div className="flex flex-col">
-              <span className="font-editorial text-2xl sm:text-3xl tracking-tight text-main font-semibold group-hover:text-olive transition-colors leading-none">
-                Bloomieee.co
-              </span>
-              <span className="text-[10px] uppercase tracking-widest text-sage font-medium mt-0.5">
-                Handmade Pipe-Cleaner Flowers
-              </span>
-            </div>
+            <span className="font-editorial text-[19px] tracking-tight text-main font-semibold group-hover:text-olive transition-colors leading-none">
+              Bloomieee.co
+            </span>
           </Link>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-main/90 tracking-wide">
-            <Link
-              href="/"
-              className="hover:text-olive transition-colors py-1 border-b-2 border-transparent hover:border-sage"
-            >
-              Home
-            </Link>
-            <Link
-              href="/shop"
-              className="hover:text-olive transition-colors py-1 border-b-2 border-transparent hover:border-sage"
-            >
-              Shop All
-            </Link>
-            <Link
-              href="/shop?category=Tulip+Bouquets"
-              className="hover:text-olive transition-colors py-1 border-b-2 border-transparent hover:border-sage"
-            >
-              Tulips
-            </Link>
-            <Link
-              href="/shop?category=Rose+Bouquets"
-              className="hover:text-olive transition-colors py-1 border-b-2 border-transparent hover:border-sage"
-            >
-              Roses
-            </Link>
-            <Link
-              href="/shop?category=Lily+Bouquets"
-              className="hover:text-olive transition-colors py-1 border-b-2 border-transparent hover:border-sage"
-            >
-              Lilies
-            </Link>
+          {/* CENTER — Desktop Nav */}
+          <nav className="hidden lg:flex items-center gap-6 text-[13px] font-medium text-main/75 tracking-wide">
+            {NAV_LINKS.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="hover:text-olive transition-colors relative after:absolute after:left-0 after:-bottom-0.5 after:h-px after:w-0 after:bg-sage after:transition-all hover:after:w-full"
+              >
+                {label}
+              </Link>
+            ))}
             <Link
               href="/custom-bouquet"
-              className="text-olive bg-sage-soft px-3.5 py-1.5 rounded-full hover:bg-sage hover:text-ivory transition-all shadow-xs flex items-center gap-1.5 font-medium"
+              className="flex items-center gap-1.5 text-[12px] font-semibold text-olive bg-sage/10 hover:bg-sage hover:text-ivory px-3.5 py-1.5 rounded-full transition-all border border-sage/20 hover:border-sage"
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              Custom Orders
-            </Link>
-            <Link
-              href="/about"
-              className="hover:text-olive transition-colors py-1 border-b-2 border-transparent hover:border-sage"
-            >
-              Our Story
+              <Sparkles className="w-3 h-3" />
+              Custom Order
             </Link>
           </nav>
 
-          {/* Action Icons */}
-          <div className="flex items-center gap-2 sm:gap-3.5">
+          {/* RIGHT — Actions */}
+          <div className="flex items-center gap-1 sm:gap-2">
+            {/* Search — desktop pill */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="hidden lg:flex items-center gap-2 text-xs text-muted hover:text-main bg-cream-light hover:bg-cream border border-border-warm px-3.5 py-2 rounded-full transition-all"
+              className="hidden lg:flex items-center gap-2 text-[12px] text-muted hover:text-main bg-cream hover:bg-cream-light border border-border-warm px-3 py-1.5 rounded-full transition-all"
+              aria-label="Search"
             >
               <Search className="w-3.5 h-3.5 text-sage" />
-              <span>Search blooms...</span>
+              <span>Search…</span>
             </button>
 
+            {/* Search — mobile icon */}
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="lg:hidden p-2 text-main hover:text-sage transition-colors"
+              aria-label="Search"
+            >
+              <Search className="w-[18px] h-[18px]" />
+            </button>
+
+            {/* Wishlist */}
             <Link
               href="/shop?wishlist=true"
-              className="relative p-2 text-main hover:text-olive rounded-full hover:bg-cream transition-colors"
+              className="relative p-2 text-main hover:text-olive transition-colors"
               aria-label="Wishlist"
             >
-              <Heart className="w-5 h-5" />
+              <Heart className="w-[18px] h-[18px]" />
               {wishlistCount > 0 && (
-                <span className="absolute top-1 right-1 bg-blush text-olive text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-ivory">
+                <span className="absolute top-1 right-1 bg-blush text-[9px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center">
                   {wishlistCount}
                 </span>
               )}
             </Link>
 
+            {/* Cart */}
             <button
               onClick={openCart}
-              className="relative flex items-center gap-2 bg-olive hover:bg-olive-dark text-ivory px-3.5 py-2 rounded-full transition-all duration-200 shadow-xs hover:shadow-md cursor-pointer"
+              className="relative flex items-center gap-1.5 bg-olive hover:bg-olive-dark text-ivory text-[12px] font-semibold px-3.5 py-1.5 rounded-full transition-all cursor-pointer"
               aria-label="Open Cart"
             >
-              <ShoppingBag className="w-4 h-4" />
-              <span className="text-xs font-semibold">{itemCount}</span>
+              <ShoppingBag className="w-3.5 h-3.5" />
+              <span>{itemCount}</span>
             </button>
 
-            <Link
-              href="/admin/login"
-              className="hidden md:inline-block text-[11px] uppercase tracking-wider text-muted/70 hover:text-sage transition-colors ml-1 px-1"
-              title="Admin Portal"
+            {/* Mobile menu toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden p-2 text-main hover:text-sage transition-colors ml-1"
+              aria-label="Menu"
             >
-              Studio
-            </Link>
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
       </header>
 
-      {/* 3. Search Modal Overlay */}
+      {/* Search Modal */}
       {searchOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-start justify-center pt-24 px-4"
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-start justify-center pt-20 px-4"
           onClick={() => setSearchOpen(false)}
         >
           <div
-            className="bg-ivory border border-border-warm rounded-2xl w-full max-w-xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+            className="bg-ivory border border-border-warm rounded-2xl w-full max-w-lg p-5 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between pb-3 border-b border-border-warm mb-4">
-              <span className="font-editorial text-xl font-medium text-main">Search Everlasting Blooms</span>
-              <button
-                onClick={() => setSearchOpen(false)}
-                className="text-muted hover:text-main p-1"
-              >
-                <X className="w-5 h-5" />
+              <span className="font-editorial text-lg font-medium text-main">Find your blooms</span>
+              <button onClick={() => setSearchOpen(false)} className="text-muted hover:text-main p-1">
+                <X className="w-4 h-4" />
               </button>
             </div>
             <form onSubmit={handleSearchSubmit} className="relative">
@@ -215,28 +181,28 @@ export default function Navbar() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by flower type (tulips, sunflower, lily), color, or bouquet..."
+                placeholder="Search tulips, roses, lily, sunflower…"
                 autoFocus
-                className="w-full bg-cream-light border border-border-warm rounded-xl pl-11 pr-24 py-3.5 text-sm text-main focus:outline-hidden focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all"
+                className="w-full bg-cream border border-border-warm rounded-xl pl-10 pr-20 py-3 text-sm text-main focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all"
               />
-              <Search className="w-5 h-5 text-sage absolute left-3.5 top-3.5" />
+              <Search className="w-4 h-4 text-sage absolute left-3.5 top-3.5" />
               <button
                 type="submit"
-                className="absolute right-2 top-2 bg-sage hover:bg-sage-dark text-ivory text-xs font-medium px-4 py-2 rounded-lg transition-colors"
+                className="absolute right-2 top-1.5 bg-sage hover:bg-sage-dark text-ivory text-xs font-medium px-4 py-1.5 rounded-lg transition-colors"
               >
-                Search
+                Go
               </button>
             </form>
-            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-muted">
-              <span>Popular:</span>
-              {['Blue Tulips', 'Lavender', 'Sunflower', 'Single Rose', 'Pink Lily'].map((tag) => (
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted">
+              <span className="text-[11px]">Try:</span>
+              {['Blue Tulips', 'Lavender', 'Sunflower', 'Pink Rose'].map((tag) => (
                 <button
                   key={tag}
                   type="button"
                   onClick={() => {
                     window.location.href = `/shop?search=${encodeURIComponent(tag)}`;
                   }}
-                  className="bg-cream hover:bg-border-warm text-main px-2.5 py-1 rounded-full transition-colors"
+                  className="bg-cream hover:bg-border-warm text-main px-2.5 py-1 rounded-full transition-colors text-[11px]"
                 >
                   {tag}
                 </button>
@@ -246,106 +212,71 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* 4. Mobile Menu Drawer */}
+      {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 lg:hidden" onClick={() => setMobileMenuOpen(false)}>
+        <div
+          className="fixed inset-0 z-50 bg-black/50 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        >
           <div
-            className="fixed top-0 left-0 bottom-0 w-4/5 max-w-sm bg-ivory shadow-2xl p-6 flex flex-col justify-between"
+            className="fixed top-0 left-0 bottom-0 w-[78%] max-w-xs bg-ivory shadow-2xl flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div>
-              <div className="flex items-center justify-between pb-6 border-b border-border-warm mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="relative w-10 h-10 rounded-full overflow-hidden border border-sage/40">
-                    <Image src="/images/brand/bloomieee-logo.png" alt="Logo" fill className="object-cover" />
-                  </div>
-                  <div>
-                    <h3 className="font-editorial text-xl font-semibold text-main">Bloomieee.co</h3>
-                    <p className="text-[10px] text-sage font-medium uppercase tracking-wider">Handmade Flowers</p>
-                  </div>
+            {/* Mobile menu header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border-warm">
+              <div className="flex items-center gap-2.5">
+                <div className="relative w-8 h-8 rounded-full overflow-hidden border border-sage/30">
+                  <Image src="/images/brand/bloomieee-logo.png" alt="Logo" fill className="object-cover" />
                 </div>
-                <button onClick={() => setMobileMenuOpen(false)} className="p-1 text-muted">
-                  <X className="w-6 h-6" />
-                </button>
+                <span className="font-editorial text-[17px] font-semibold text-main">Bloomieee.co</span>
               </div>
-
-              <nav className="flex flex-col gap-4 text-base font-medium text-main">
-                <Link
-                  href="/"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-1.5 hover:text-sage transition-colors"
-                >
-                  Home
-                </Link>
-                <Link
-                  href="/shop"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-1.5 hover:text-sage transition-colors"
-                >
-                  Shop All Collections
-                </Link>
-                <Link
-                  href="/shop?category=Tulip+Bouquets"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-1.5 text-muted hover:text-sage transition-colors pl-2"
-                >
-                  Tulip Bouquets
-                </Link>
-                <Link
-                  href="/shop?category=Rose+Bouquets"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-1.5 text-muted hover:text-sage transition-colors pl-2"
-                >
-                  Rose Bouquets
-                </Link>
-                <Link
-                  href="/shop?category=Lily+Bouquets"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-1.5 text-muted hover:text-sage transition-colors pl-2"
-                >
-                  Lily Bouquets
-                </Link>
-                <Link
-                  href="/custom-bouquet"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-2.5 px-4 bg-sage-soft text-olive rounded-xl flex items-center justify-between font-semibold"
-                >
-                  <span>Dream Your Custom Bouquet</span>
-                  <Sparkles className="w-4 h-4 text-sage" />
-                </Link>
-                <Link
-                  href="/about"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-1.5 hover:text-sage transition-colors"
-                >
-                  Our Story
-                </Link>
-                <Link
-                  href="/track"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-1.5 hover:text-sage transition-colors"
-                >
-                  Track Your Order
-                </Link>
-              </nav>
+              <button onClick={() => setMobileMenuOpen(false)} className="p-1.5 text-muted hover:text-main">
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            <div className="pt-6 border-t border-border-warm text-xs text-muted space-y-2">
+            {/* Mobile nav links */}
+            <nav className="flex flex-col px-5 py-4 gap-1 flex-1">
+              {[
+                { href: '/', label: 'Home' },
+                { href: '/shop', label: 'Shop All' },
+                { href: '/shop?category=Tulip+Bouquets', label: 'Tulip Bouquets' },
+                { href: '/shop?category=Rose+Bouquets', label: 'Rose Bouquets' },
+                { href: '/shop?category=Lily+Bouquets', label: 'Lily Bouquets' },
+                { href: '/about', label: 'Our Story' },
+                { href: '/track', label: 'Track Order' },
+              ].map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-2.5 px-2 text-[15px] font-medium text-main hover:text-sage hover:bg-cream rounded-lg transition-all"
+                >
+                  {label}
+                </Link>
+              ))}
+              <Link
+                href="/custom-bouquet"
+                onClick={() => setMobileMenuOpen(false)}
+                className="mt-2 py-2.5 px-4 bg-sage/10 text-olive rounded-xl flex items-center justify-between font-semibold text-[14px] border border-sage/20"
+              >
+                <span>Custom Bouquet</span>
+                <Sparkles className="w-4 h-4 text-sage" />
+              </Link>
+            </nav>
+
+            {/* Mobile menu footer */}
+            <div className="px-5 py-4 border-t border-border-warm text-[11px] text-muted space-y-1.5">
               <p>📍 Handcrafted with love in India</p>
               <p>💌 hello@bloomieee.co</p>
-              <div className="flex gap-4 pt-2">
-                <a
-                  href="https://www.instagram.com/bloomieee.co/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-sage font-medium hover:underline"
-                >
-                  Instagram @bloomieee.co
-                </a>
-                <Link href="/admin/login" className="text-muted/60 hover:underline">
-                  Admin Login
-                </Link>
-              </div>
+              <a
+                href="https://www.instagram.com/bloomieee.co/"
+                target="_blank"
+                rel="noreferrer"
+                className="block text-sage font-medium hover:underline mt-2"
+              >
+                @bloomieee.co on Instagram
+              </a>
             </div>
           </div>
         </div>
