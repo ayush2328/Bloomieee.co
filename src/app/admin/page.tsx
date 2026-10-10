@@ -20,6 +20,10 @@ import {
   AlertCircle,
   Save,
   MessageCircle,
+  Upload,
+  X,
+  Image as ImageIcon,
+  Loader2,
 } from 'lucide-react';
 import { Product, Order, CustomRequest, StoreSettings, NewsletterSubscriber } from '@/lib/db';
 
@@ -69,16 +73,103 @@ export default function AdminDashboardPage() {
     images: '',
   });
 
+  // Image upload state
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [newImageUrl, setNewImageUrl] = useState('');
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isEditing: boolean) => {
+    const file = e.target.files?.[0];
+    if (!file || !token) return;
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success && data.url) {
+        if (isEditing) {
+          setEditProd((prev) => {
+            const list = prev.images
+              .split('\n')
+              .map((s) => s.trim())
+              .filter(Boolean);
+            list.push(data.url);
+            return { ...prev, images: list.join('\n') };
+          });
+        } else {
+          setNewProd((prev) => ({
+            ...prev,
+            images: [...prev.images, data.url],
+          }));
+        }
+        setMessage('Image uploaded directly to product!');
+        setTimeout(() => setMessage(null), 2500);
+      } else {
+        alert(data.error || 'Upload failed');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error uploading file');
+    } finally {
+      setUploadingImage(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleAddImageUrl = (isEditing: boolean) => {
+    if (!newImageUrl.trim()) return;
+    const url = newImageUrl.trim();
+    if (isEditing) {
+      setEditProd((prev) => {
+        const list = prev.images
+          .split('\n')
+          .map((s) => s.trim())
+          .filter(Boolean);
+        list.push(url);
+        return { ...prev, images: list.join('\n') };
+      });
+    } else {
+      setNewProd((prev) => ({
+        ...prev,
+        images: [...prev.images, url],
+      }));
+    }
+    setNewImageUrl('');
+  };
+
+  const handleRemoveImage = (indexToRemove: number, isEditing: boolean) => {
+    if (isEditing) {
+      setEditProd((prev) => {
+        const list = prev.images
+          .split('\n')
+          .map((s) => s.trim())
+          .filter(Boolean);
+        const filtered = list.filter((_, idx) => idx !== indexToRemove);
+        return { ...prev, images: filtered.join('\n') };
+      });
+    } else {
+      setNewProd((prev) => ({
+        ...prev,
+        images: prev.images.filter((_, idx) => idx !== indexToRemove),
+      }));
+    }
+  };
+
   const openEditModal = (p: Product) => {
     setEditingProduct(p);
+    setNewImageUrl('');
     setEditProd({
       title: p.title,
       category: p.category,
       price: p.price,
       originalPrice: p.originalPrice ?? 0,
       inStock: p.inStock,
-      // isFeatured: p.isFeatured,
-      // isBestseller: p.isBestseller,
       isFeatured: p.isFeatured ?? false,
       isBestseller: p.isBestseller ?? false,
       flowerTypes: p.flowerTypes.join(', '),
@@ -907,6 +998,86 @@ export default function AdminDashboardPage() {
                 />
               </div>
 
+              {/* Product Images Manager for New Product */}
+              <div className="bg-cream-light/70 border border-border-warm rounded-2xl p-3.5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-main flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5 text-olive" />
+                    <span>Product Images</span>
+                  </label>
+                  <span className="text-[10px] text-muted">{newProd.images.length} image(s)</span>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <label className="cursor-pointer flex-1 bg-white hover:bg-cream text-olive border border-olive/30 hover:border-olive rounded-xl px-3 py-2 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-2xs">
+                    {uploadingImage ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Uploading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Upload from Computer / Phone</span>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      disabled={uploadingImage}
+                      onChange={(e) => handleFileUpload(e, false)}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                <div className="flex gap-1.5">
+                  <input
+                    type="text"
+                    value={newImageUrl}
+                    onChange={(e) => setNewImageUrl(e.target.value)}
+                    placeholder="Or paste image URL (https://... or /images/...)"
+                    className="flex-1 bg-white border border-border-warm rounded-xl px-3 py-1.5 text-xs text-main placeholder:text-muted/60"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleAddImageUrl(false)}
+                    className="bg-olive text-ivory px-3 py-1.5 rounded-xl text-xs font-semibold hover:bg-olive-dark transition-colors"
+                  >
+                    Add URL
+                  </button>
+                </div>
+
+                {newProd.images.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
+                    {newProd.images.map((url, i) => (
+                      <div
+                        key={i}
+                        className="group relative aspect-4/5 rounded-xl overflow-hidden border-2 border-border-warm bg-cream shadow-2xs"
+                      >
+                        <Image
+                          src={url}
+                          alt={`New product preview ${i + 1}`}
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="absolute top-1 left-1 bg-black/60 backdrop-blur-xs text-white text-[9px] px-1.5 py-0.5 rounded-full font-medium">
+                          {i === 0 ? '★ Main Photo' : `#${i + 1}`}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(i, false)}
+                          className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center shadow-md hover:bg-red-700 transition-colors"
+                          title="Delete image"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div className="flex gap-2 pt-2">
                 <button
                   type="button"
@@ -1031,46 +1202,102 @@ export default function AdminDashboardPage() {
                 />
               </div>
 
-              {/* Product Images */}
-              <div>
-                <label className="block text-xs font-semibold text-main mb-1">
-                  Product Images
-                  <span className="font-normal text-muted ml-1">(one URL per line)</span>
-                </label>
-                <textarea
-                  rows={3}
-                  value={editProd.images}
-                  onChange={(e) => setEditProd({ ...editProd, images: e.target.value })}
-                  placeholder={`/images/products/my-bouquet.jpg\n/images/products/my-bouquet-2.jpg`}
-                  className="w-full bg-cream-light border border-border-warm rounded-xl p-2.5 text-xs font-mono resize-none"
-                />
-                {/* Live preview grid */}
-                {editProd.images.split('\n').filter(s => s.trim()).length > 0 && (
-                  <div className="mt-2 flex gap-2 flex-wrap">
+              {/* Product Images Manager for Edit Modal */}
+              <div className="bg-cream-light/70 border border-border-warm rounded-2xl p-3.5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-main flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5 text-olive" />
+                    <span>Product Images</span>
+                  </label>
+                  <span className="text-[10px] text-muted">
+                    {editProd.images.split('\n').filter((s) => s.trim()).length} image(s)
+                  </span>
+                </div>
+
+                {/* Upload from device button */}
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <label className="cursor-pointer flex-1 bg-white hover:bg-cream text-olive border border-olive/30 hover:border-olive rounded-xl px-3 py-2 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-2xs">
+                    {uploadingImage ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Uploading from device...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Upload Image from Computer / Phone</span>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      disabled={uploadingImage}
+                      onChange={(e) => handleFileUpload(e, true)}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                {/* Add by image URL */}
+                <div className="flex gap-1.5">
+                  <input
+                    type="text"
+                    value={newImageUrl}
+                    onChange={(e) => setNewImageUrl(e.target.value)}
+                    placeholder="Or paste image URL (https://... or /images/...)"
+                    className="flex-1 bg-white border border-border-warm rounded-xl px-3 py-1.5 text-xs text-main placeholder:text-muted/60"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleAddImageUrl(true)}
+                    className="bg-olive text-ivory px-3 py-1.5 rounded-xl text-xs font-semibold hover:bg-olive-dark transition-colors"
+                  >
+                    Add URL
+                  </button>
+                </div>
+
+                {/* Visual Image Cards with Delete Button */}
+                {editProd.images.split('\n').filter((s) => s.trim()).length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
                     {editProd.images
                       .split('\n')
-                      .map(s => s.trim())
+                      .map((s) => s.trim())
                       .filter(Boolean)
                       .map((url, i) => (
                         <div
                           key={i}
-                          className="relative w-16 h-20 rounded-lg overflow-hidden border-2 border-border-warm bg-cream shadow-xs shrink-0"
+                          className="group relative aspect-4/5 rounded-xl overflow-hidden border-2 border-border-warm bg-cream shadow-2xs"
                         >
                           <Image
                             src={url}
-                            alt={`Preview ${i + 1}`}
+                            alt={`Product image ${i + 1}`}
                             fill
                             className="object-cover"
                             onError={(e) => {
                               (e.target as HTMLImageElement).style.opacity = '0.2';
                             }}
                           />
-                          <span className="absolute bottom-0.5 right-0.5 bg-black/50 text-white text-[9px] px-1 rounded">
-                            {i + 1}
-                          </span>
+                          <div className="absolute top-1 left-1 bg-black/60 backdrop-blur-xs text-white text-[9px] px-1.5 py-0.5 rounded-full font-medium">
+                            {i === 0 ? '★ Main Photo' : `#${i + 1}`}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImage(i, true)}
+                            className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center shadow-md hover:bg-red-700 transition-colors"
+                            title="Delete image"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                          <div className="absolute bottom-0 inset-x-0 bg-black/60 text-[8px] text-ivory/90 px-1.5 py-0.5 truncate font-mono">
+                            {url.split('/').pop() || url}
+                          </div>
                         </div>
                       ))}
                   </div>
+                ) : (
+                  <p className="text-[11px] text-muted italic text-center py-2 bg-white/60 rounded-xl border border-dashed border-border-warm">
+                    No images attached. Click upload or paste URL above!
+                  </p>
                 )}
               </div>
 
