@@ -241,7 +241,6 @@ const INITIAL_DATA: DatabaseSchema = {
       isBestseller: true,
       images: [
         '/images/products/scarlet-rose-keepsake.jpg',
-        '/images/brand/luxury-gift-box.jpg',
       ],
       flowerTypes: ['Velvet Rose Bloom', 'Leafy Stem'],
       colors: ['Classic Crimson Red', 'Blush Petal Pink', 'Deep Burgundy'],
