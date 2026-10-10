@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ivory: #FFF9F1;
+  --color-cream: #F5EBDD;
+  --color-cream-light: #FAF5EE;
+  --color-cream-hover: #ECE1CF;
+  --color-sage: #858B68;
+  --color-sage-light: #9FA682;
+  --color-sage-soft: #EEF1E6;
+  --color-olive: #50583B;
+  --color-olive-dark: #3E452B;
+  --color-blush: #F2D9DF;
+  --color-blush-light: #FAF0F3;
+  --color-blush-soft: #FDF7F8;
+  --color-lavender: #DCD2EE;
+  --color-lavender-light: #F2EDFB;
+  --color-lavender-soft: #F8F5FD;
+  --color-brown: #8C6C53;
+  --color-brown-light: #A8866E;
+  --color-main: #34342D;
+  --color-muted: #6B6B62;
+  --color-border-warm: #EAE0D3;
+
+  --font-serif: var(--font-serif), "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  --font-sans: var(--font-sans), "Plus Jakarta Sans", Inter, -apple-system, sans-serif;
+}
+
+:root {
+  --background: #FFF9F1;
+  --foreground: #34342D;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Editorial typography classes */
+.font-editorial {
+  font-family: var(--font-serif);
+}
+
+/* Subtle botanical glass effect */
+.glass-panel {
+  background: rgba(255, 249, 241, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(234, 224, 211, 0.8);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(234, 224, 211, 0.6);
+}
+
+/* Custom delicate scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #FFF9F1;
+}
+::-webkit-scrollbar-thumb {
+  background: #D9CEBE;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #858B68;
+}
+
+/* Soft shimmer keyframe */
+@keyframes bloomPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.03); opacity: 0.95; }
+}
+
+.animate-bloom-pulse {
+  animation: bloomPulse 4s ease-in-out infinite;
+}
