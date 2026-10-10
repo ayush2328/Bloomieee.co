@@ -12,6 +12,7 @@ import {
   Settings,
   Plus,
   Trash2,
+  Pencil,
   ExternalLink,
   LogOut,
   Truck,
@@ -51,6 +52,74 @@ export default function AdminDashboardPage() {
     colors: 'Cobalt Blue & Pearl',
     description: 'Artisan handcrafted pipe-cleaner floral arrangement.',
   });
+
+  // Edit product modal
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editProd, setEditProd] = useState({
+    title: '',
+    category: 'Tulip Bouquets',
+    price: 0,
+    originalPrice: 0,
+    inStock: 0,
+    isFeatured: false,
+    isBestseller: false,
+    flowerTypes: '',
+    colors: '',
+    description: '',
+    images: '',
+  });
+
+  const openEditModal = (p: Product) => {
+    setEditingProduct(p);
+    setEditProd({
+      title: p.title,
+      category: p.category,
+      price: p.price,
+      originalPrice: p.originalPrice ?? 0,
+      inStock: p.inStock,
+      isFeatured: p.isFeatured,
+      isBestseller: p.isBestseller,
+      flowerTypes: p.flowerTypes.join(', '),
+      colors: p.colors.join(', '),
+      description: p.description,
+      images: p.images.join('\n'),
+    });
+  };
+
+  const handleEditProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token || !editingProduct) return;
+    try {
+      const payload = {
+        ...editProd,
+        flowerTypes: editProd.flowerTypes.split(',').map((s) => s.trim()),
+        colors: editProd.colors.split(',').map((s) => s.trim()),
+        images: editProd.images
+          .split('\n')
+          .map((s) => s.trim())
+          .filter(Boolean),
+      };
+      const res = await fetch(`/api/products/${editingProduct.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setProducts((prev) =>
+          prev.map((p) => (p.id === editingProduct.id ? { ...p, ...data.product } : p))
+        );
+        setEditingProduct(null);
+        setMessage(`"${editProd.title}" updated successfully!`);
+        setTimeout(() => setMessage(null), 2500);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   // Verify auth on mount
   useEffect(() => {
@@ -477,13 +546,22 @@ export default function AdminDashboardPage() {
                           </div>
                         </td>
                         <td className="p-3.5 text-right">
-                          <button
-                            onClick={() => handleDeleteProduct(p.id)}
-                            className="p-1.5 text-muted hover:text-red-500 rounded-lg"
-                            title="Delete product"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => openEditModal(p)}
+                              className="p-1.5 text-muted hover:text-olive rounded-lg transition-colors"
+                              title="Edit product"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteProduct(p.id)}
+                              className="p-1.5 text-muted hover:text-red-500 rounded-lg transition-colors"
+                              title="Delete product"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -842,6 +920,196 @@ export default function AdminDashboardPage() {
                   className="flex-1 bg-olive text-ivory py-2.5 rounded-full text-xs font-semibold"
                 >
                   Create Listing
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Product Modal */}
+      {editingProduct && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between">
+              <h3 className="font-editorial text-2xl font-semibold text-main">Edit Bouquet</h3>
+              <button
+                onClick={() => setEditingProduct(null)}
+                className="text-muted hover:text-main p-1"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleEditProduct} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-main mb-1">Bouquet Name</label>
+                <input
+                  type="text"
+                  required
+                  value={editProd.title}
+                  onChange={(e) => setEditProd({ ...editProd, title: e.target.value })}
+                  className="w-full bg-cream-light border border-border-warm rounded-xl p-2.5 text-xs"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-main mb-1">Category</label>
+                  <select
+                    value={editProd.category}
+                    onChange={(e) => setEditProd({ ...editProd, category: e.target.value })}
+                    className="w-full bg-cream-light border border-border-warm rounded-xl p-2.5 text-xs"
+                  >
+                    <option value="Tulip Bouquets">Tulip Bouquets</option>
+                    <option value="Rose Bouquets">Rose Bouquets</option>
+                    <option value="Lily Bouquets">Lily Bouquets</option>
+                    <option value="Mini Flower Gifts">Mini Flower Gifts</option>
+                    <option value="Custom Bouquets">Custom Bouquets</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-main mb-1">Price (₹)</label>
+                  <input
+                    type="number"
+                    required
+                    value={editProd.price}
+                    onChange={(e) => setEditProd({ ...editProd, price: Number(e.target.value) })}
+                    className="w-full bg-cream-light border border-border-warm rounded-xl p-2.5 text-xs"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-main mb-1">Original Price (₹)</label>
+                  <input
+                    type="number"
+                    value={editProd.originalPrice}
+                    onChange={(e) => setEditProd({ ...editProd, originalPrice: Number(e.target.value) })}
+                    className="w-full bg-cream-light border border-border-warm rounded-xl p-2.5 text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-main mb-1">Stock Qty</label>
+                  <input
+                    type="number"
+                    value={editProd.inStock}
+                    onChange={(e) => setEditProd({ ...editProd, inStock: Number(e.target.value) })}
+                    className="w-full bg-cream-light border border-border-warm rounded-xl p-2.5 text-xs"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-main mb-1">Flower Types (comma separated)</label>
+                <input
+                  type="text"
+                  value={editProd.flowerTypes}
+                  onChange={(e) => setEditProd({ ...editProd, flowerTypes: e.target.value })}
+                  className="w-full bg-cream-light border border-border-warm rounded-xl p-2.5 text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-main mb-1">Available Colors (comma separated)</label>
+                <input
+                  type="text"
+                  value={editProd.colors}
+                  onChange={(e) => setEditProd({ ...editProd, colors: e.target.value })}
+                  className="w-full bg-cream-light border border-border-warm rounded-xl p-2.5 text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-main mb-1">Description</label>
+                <textarea
+                  rows={3}
+                  value={editProd.description}
+                  onChange={(e) => setEditProd({ ...editProd, description: e.target.value })}
+                  className="w-full bg-cream-light border border-border-warm rounded-xl p-2.5 text-xs resize-none"
+                />
+              </div>
+
+              {/* Product Images */}
+              <div>
+                <label className="block text-xs font-semibold text-main mb-1">
+                  Product Images
+                  <span className="font-normal text-muted ml-1">(one URL per line)</span>
+                </label>
+                <textarea
+                  rows={3}
+                  value={editProd.images}
+                  onChange={(e) => setEditProd({ ...editProd, images: e.target.value })}
+                  placeholder={`/images/products/my-bouquet.jpg\n/images/products/my-bouquet-2.jpg`}
+                  className="w-full bg-cream-light border border-border-warm rounded-xl p-2.5 text-xs font-mono resize-none"
+                />
+                {/* Live preview grid */}
+                {editProd.images.split('\n').filter(s => s.trim()).length > 0 && (
+                  <div className="mt-2 flex gap-2 flex-wrap">
+                    {editProd.images
+                      .split('\n')
+                      .map(s => s.trim())
+                      .filter(Boolean)
+                      .map((url, i) => (
+                        <div
+                          key={i}
+                          className="relative w-16 h-20 rounded-lg overflow-hidden border-2 border-border-warm bg-cream shadow-xs shrink-0"
+                        >
+                          <Image
+                            src={url}
+                            alt={`Preview ${i + 1}`}
+                            fill
+                            className="object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.opacity = '0.2';
+                            }}
+                          />
+                          <span className="absolute bottom-0.5 right-0.5 bg-black/50 text-white text-[9px] px-1 rounded">
+                            {i + 1}
+                          </span>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
+
+
+              <div className="flex items-center gap-4 text-xs">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editProd.isFeatured}
+                    onChange={(e) => setEditProd({ ...editProd, isFeatured: e.target.checked })}
+                    className="accent-olive"
+                  />
+                  <span className="font-medium text-main">Featured</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editProd.isBestseller}
+                    onChange={(e) => setEditProd({ ...editProd, isBestseller: e.target.checked })}
+                    className="accent-olive"
+                  />
+                  <span className="font-medium text-main">Bestseller</span>
+                </label>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingProduct(null)}
+                  className="flex-1 bg-cream py-2.5 rounded-full text-xs font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-olive text-ivory py-2.5 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  Save Changes
                 </button>
               </div>
             </form>

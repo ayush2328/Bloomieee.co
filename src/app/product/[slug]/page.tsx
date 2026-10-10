@@ -159,7 +159,7 @@ export default function ProductDetailPage({
         </nav>
 
         {/* Product Details Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-start">
           {/* Left Column: Image Gallery */}
           <div className="lg:col-span-7 space-y-4">
             {/* Main Hero Image */}

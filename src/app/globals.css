@@ -84,3 +84,15 @@ body {
 .animate-bloom-pulse {
   animation: bloomPulse 4s ease-in-out infinite;
 }
+
+/* Hide scrollbar but keep scroll */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Mobile touch improvements */
+* { -webkit-tap-highlight-color: transparent; }
+img { user-select: none; -webkit-user-drag: none; }
+
+/* Fix iOS 100vh issue */
+.min-h-screen { min-height: 100svh; }
+

@@ -415,8 +415,8 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Right Column: Order Summary & Confirmation CTA */}
-              <div className="lg:col-span-5 bg-white/90 border border-border-warm rounded-3xl p-6 sm:p-7 space-y-6 sticky top-28 shadow-sm">
+              {/* Right Column: Order Summary — on mobile appears first */}
+              <div className="lg:col-span-5 bg-white/90 border border-border-warm rounded-3xl p-5 sm:p-7 space-y-5 lg:sticky lg:top-28 shadow-sm order-first lg:order-last">
                 <h2 className="font-editorial text-xl font-semibold text-main border-b border-border-warm pb-3">
                   In Your Floral Bag ({items.length})
                 </h2>

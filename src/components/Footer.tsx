@@ -10,9 +10,9 @@ export default function Footer() {
   return (
     <footer className="bg-cream-light border-t border-border-warm text-main/90">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10 mb-12">
           {/* Brand Col */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="col-span-2 md:col-span-2 lg:col-span-2 space-y-4">
             <Link href="/" className="flex items-center gap-3">
               <div className="relative w-11 h-11 rounded-full overflow-hidden border border-sage/40 bg-cream">
                 <Image
