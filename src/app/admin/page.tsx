@@ -77,8 +77,10 @@ export default function AdminDashboardPage() {
       price: p.price,
       originalPrice: p.originalPrice ?? 0,
       inStock: p.inStock,
-      isFeatured: p.isFeatured,
-      isBestseller: p.isBestseller,
+      // isFeatured: p.isFeatured,
+      // isBestseller: p.isBestseller,
+      isFeatured: p.isFeatured ?? false,
+      isBestseller: p.isBestseller ?? false,
       flowerTypes: p.flowerTypes.join(', '),
       colors: p.colors.join(', '),
       description: p.description,
@@ -386,11 +388,10 @@ export default function AdminDashboardPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                className={`flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-full whitespace-nowrap transition-all ${
-                  active
+                className={`flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-full whitespace-nowrap transition-all ${active
                     ? 'bg-olive text-ivory shadow-xs'
                     : 'bg-white hover:bg-cream text-muted border border-border-warm'
-                }`}
+                  }`}
               >
                 <Icon className="w-3.5 h-3.5" />
                 <span>{tab.label}</span>
@@ -464,13 +465,12 @@ export default function AdminDashboardPage() {
                         <td className="p-3 font-semibold text-main">₹{ord.total}</td>
                         <td className="p-3">
                           <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-semibold capitalize ${
-                              ord.orderStatus === 'delivered'
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-semibold capitalize ${ord.orderStatus === 'delivered'
                                 ? 'bg-green-100 text-green-800'
                                 : ord.orderStatus === 'shipped'
-                                ? 'bg-blue-100 text-blue-800'
-                                : 'bg-amber-100 text-amber-800'
-                            }`}
+                                  ? 'bg-blue-100 text-blue-800'
+                                  : 'bg-amber-100 text-amber-800'
+                              }`}
                           >
                             {ord.orderStatus}
                           </span>
