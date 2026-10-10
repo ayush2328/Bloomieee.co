@@ -213,7 +213,6 @@ const INITIAL_DATA: DatabaseSchema = {
       isBestseller: true,
       images: [
         '/images/products/sunlit-sunflower-daisy.jpg',
-        '/images/brand/luxury-gift-box.jpg',
       ],
       flowerTypes: ['Double-Petal Sunflowers', 'White Daisies', 'Eucalyptus Foliage'],
       colors: ['Warm Sunflower Yellow', 'Pastel Lemon & Buttercream'],
