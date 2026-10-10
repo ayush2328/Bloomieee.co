@@ -577,30 +577,70 @@ const INITIAL_DATA: DatabaseSchema = {
   ],
 };
 
-function ensureDataDir() {
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
+let inMemoryDB: DatabaseSchema | null = null;
+
+function getDbFilePath(): string {
+  // Check if writable in current directory, otherwise use /tmp for Vercel serverless
+  if (fs.existsSync(dbFile)) {
+    return dbFile;
   }
+  const tmpDbFile = path.join('/tmp', 'bloomieee.json');
+  return tmpDbFile;
 }
 
 export function getDatabase(): DatabaseSchema {
-  ensureDataDir();
-  if (!fs.existsSync(dbFile)) {
-    saveDatabase(INITIAL_DATA);
-    return INITIAL_DATA;
+  if (inMemoryDB) {
+    return inMemoryDB;
   }
-  try {
-    const raw = fs.readFileSync(dbFile, 'utf-8');
-    return JSON.parse(raw);
-  } catch (err) {
-    console.error('Error reading bloomieee.json, returning fallback:', err);
-    return INITIAL_DATA;
+
+  // 1. Try local data file
+  if (fs.existsSync(dbFile)) {
+    try {
+      const raw = fs.readFileSync(dbFile, 'utf-8');
+      inMemoryDB = JSON.parse(raw);
+      return inMemoryDB!;
+    } catch (e) {
+      console.error('Error reading local db file:', e);
+    }
   }
+
+  // 2. Try /tmp file if on serverless
+  const tmpFile = path.join('/tmp', 'bloomieee.json');
+  if (fs.existsSync(tmpFile)) {
+    try {
+      const raw = fs.readFileSync(tmpFile, 'utf-8');
+      inMemoryDB = JSON.parse(raw);
+      return inMemoryDB!;
+    } catch (e) {
+      console.error('Error reading tmp db file:', e);
+    }
+  }
+
+  // 3. Fallback to initial data
+  inMemoryDB = JSON.parse(JSON.stringify(INITIAL_DATA));
+  return inMemoryDB!;
 }
 
 export function saveDatabase(data: DatabaseSchema): void {
-  ensureDataDir();
-  const tmpFile = `${dbFile}.tmp.${Date.now()}`;
-  fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), 'utf-8');
-  fs.renameSync(tmpFile, dbFile);
+  inMemoryDB = data;
+
+  // Try saving to project data folder first
+  try {
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    const tmp = `${dbFile}.tmp.${Date.now()}`;
+    fs.writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf-8');
+    fs.renameSync(tmp, dbFile);
+    return;
+  } catch (err) {
+    // If running in Vercel read-only serverless filesystem, save to /tmp
+    try {
+      const tmpFile = path.join('/tmp', 'bloomieee.json');
+      fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), 'utf-8');
+    } catch (tmpErr) {
+      console.warn('Could not persist to disk in serverless environment:', tmpErr);
+    }
+  }
 }
+
